@@ -86,9 +86,7 @@ class Rule(nn.Module):
         dropout_mask = (torch.rand_like(s[0, 0]) > 0.5).unsqueeze(0).unsqueeze(0)
         flip = -2. * torch.logical_and(rand < p, dropout_mask) + 1
 
-        if self.J_adapt and torch.rand(1) > 0.5:
-            if zealots is not None:
-                zmask_flat = (F.unfold(1. * zealots, 1) > 0.).squeeze()
+        if self.J_adapt:
             s_i = F.unfold(tr, 1)
             s_j = F.unfold(F.pad(tr, (Rk, Rk, Rk, Rk), mode='circular'), 2*Rk+1)
 
@@ -110,6 +108,7 @@ class Rule(nn.Module):
 
             # set zealots to 0
             if zealots is not None:
+                zmask_flat = (F.unfold(1. * zealots, 1) > 0.).squeeze()
                 new_J[:, :, zmask_flat] = 0.
 
             self.nearest_neighbours = ((1 - self.alpha) * self.nearest_neighbours + self.alpha * new_J)
