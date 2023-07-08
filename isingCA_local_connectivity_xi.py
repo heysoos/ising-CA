@@ -14,8 +14,8 @@ class Rule(nn.Module):
         self.J_adapt = False
         self.adapt_lr = 0.5
         self.alpha = 0.9
-        self.h = 0.001
-        self.eps = 0.002
+        self.h = 0.01
+        self.eps = 0.01
         self.max_weight = 4.
 
         self.trace_memory = 0.995
@@ -86,8 +86,8 @@ class Rule(nn.Module):
             s_i = F.unfold(tr, 1)
             s_j = F.unfold(F.pad(tr, (Rk, Rk, Rk, Rk), mode='circular'), 2*Rk+1)
 
-
-            growth = self.h / Rk  # correlate
+            growth = self.h / Rk * (1 - s_i.abs()) * (1 - s_j.abs())  # correlate
+            # growth = self.h / Rk
             # decay = self.eps * (s_j.mean(dim=1, keepdim=True) * s_i)  # decorrelate if mag.
             decay = self.eps * (s_j * s_i)  # decorrelate if mag.
             dJ = (growth - decay)  # * self.rm.reshape(1, -1, 1)

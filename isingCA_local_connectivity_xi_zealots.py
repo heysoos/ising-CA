@@ -33,11 +33,11 @@ class Rule(nn.Module):
         null = torch.zeros_like(rm).cuda()
         self.rm = torch.where(condition, exp_rm, null).unsqueeze(0).unsqueeze(-1)
 
-        nearest_neighbours = torch.randn(1, Rk, Rk, self.numel).cuda()
-        # nearest_neighbours = torch.zeros(1, Rk, Rk, self.numel).cuda()/ RADIUS ** 2
+        # nearest_neighbours = torch.randn(1, Rk, Rk, self.numel).cuda()
+        nearest_neighbours = torch.zeros(1, Rk, Rk, self.numel).cuda()/ RADIUS ** 2
 
-        # nearest_neighbours[:, RADIUS, :, :] = 1.
-        # nearest_neighbours[:, :, RADIUS, :] = 1.
+        nearest_neighbours[:, RADIUS, :, :] = 1.
+        nearest_neighbours[:, :, RADIUS, :] = 1.
         nearest_neighbours[:, RADIUS, RADIUS, :] = 0
 
         # self.nearest_neighbours = (nearest_neighbours * self.rm).reshape(1, -1, self.numel)
@@ -101,10 +101,10 @@ class Rule(nn.Module):
             new_J[:, Rk * (2 * Rk + 1) + Rk, :] = 0.  # set center pixel to 0.
 
             # set corners to 0
-            # new_J[:, 0, :] = 0.
-            # new_J[:, 2*Rk, :] = 0.
-            # new_J[:, -(2*Rk+1), :] = 0.
-            # new_J[:, -1, :] = 0.
+            new_J[:, 0, :] = 0.
+            new_J[:, 2*Rk, :] = 0.
+            new_J[:, -(2*Rk+1), :] = 0.
+            new_J[:, -1, :] = 0.
 
             # set zealots to 0
             if zealots is not None:
