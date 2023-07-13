@@ -33,12 +33,18 @@ class Rule(nn.Module):
         null = torch.zeros_like(rm).cuda()
         self.rm = torch.where(condition, exp_rm, null).unsqueeze(0).unsqueeze(-1)
 
-        # nearest_neighbours = torch.randn(1, Rk, Rk, self.numel).cuda()
-        nearest_neighbours = torch.zeros(1, Rk, Rk, self.numel).cuda()/ RADIUS ** 2
+        nearest_neighbours = -3 - torch.randn(1, Rk, Rk, self.numel).cuda()
+        # nearest_neighbours = torch.zeros(1, Rk, Rk, self.numel).cuda()/ RADIUS ** 2
 
-        nearest_neighbours[:, RADIUS, :, :] = 1.
-        nearest_neighbours[:, :, RADIUS, :] = 1.
+        # nearest_neighbours[:, RADIUS, :, :] = 1.
+        # nearest_neighbours[:, :, RADIUS, :] = 1.
         nearest_neighbours[:, RADIUS, RADIUS, :] = 0
+
+        # set corners to 0
+        nearest_neighbours[:, 0, 0, :] = 0
+        nearest_neighbours[:, 0, -1, :] = 0
+        nearest_neighbours[:, -1, 0, :] = 0
+        nearest_neighbours[:, -1, -1, :] = 0
 
         # self.nearest_neighbours = (nearest_neighbours * self.rm).reshape(1, -1, self.numel)
         self.nearest_neighbours = 1 * (nearest_neighbours).reshape(1, -1, self.numel)
